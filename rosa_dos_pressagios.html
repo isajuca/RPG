@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fichas RPG</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #09070b;
+      --panel: #151018;
+      --panel-2: #1d1520;
+      --pink: #f04b9b;
+      --pink-light: #ff8bc4;
+      --muted: #aa9eaa;
+      --line: #493044;
+      --white: #f8f1f7;
+      --danger: #ff6b83;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--white);
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(240,75,155,.13), transparent 35%),
+        radial-gradient(ellipse at 90% 35%, rgba(116,34,92,.12), transparent 30%),
+        var(--bg);
+      font-family: Inter, sans-serif;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 17px 6%; border-bottom: 1px solid rgba(240,75,155,.25);
+      background: rgba(9,7,11,.92); backdrop-filter: blur(14px);
+    }
+    .brand { font: 700 19px Cinzel, serif; letter-spacing: 2px; color: var(--pink-light); }
+    .brand span { color: var(--white); }
+    .nav { display: flex; gap: 22px; align-items: center; }
+    .nav a { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .nav a:hover { color: var(--pink-light); }
+    .hero {
+      min-height: 360px; display: grid; place-items: center; text-align: center;
+      padding: 80px 20px 65px; border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(27,14,25,.4), rgba(9,7,11,.1));
+    }
+    .eyebrow { color: var(--pink); text-transform: uppercase; letter-spacing: 4px; font-size: 11px; font-weight: 700; }
+    h1, h2, h3, .serif { font-family: Cinzel, serif; }
+    h1 { font-size: clamp(38px, 7vw, 68px); margin: 14px 0; letter-spacing: 2px; }
+    .hero p { color: var(--muted); max-width: 590px; line-height: 1.8; margin: 0 auto 25px; }
+    .ornament { color: var(--pink); letter-spacing: 10px; font-size: 17px; margin: 12px 0; }
+    .container { width: min(1120px, 91%); margin: 0 auto; }
+    .section { padding: 55px 0; }
+    .section-heading { margin-bottom: 25px; }
+    .section-heading h2 { font-size: 27px; margin: 8px 0; }
+    .section-heading p { color: var(--muted); margin: 0; line-height: 1.6; }
+    .panel {
+      background: linear-gradient(145deg, rgba(29,21,32,.96), rgba(17,13,20,.96));
+      border: 1px solid var(--line); border-radius: 14px; padding: 24px;
+      box-shadow: 0 15px 40px rgba(0,0,0,.18);
+    }
+    .btn {
+      border: 1px solid var(--pink); background: var(--pink); color: #180b14;
+      padding: 11px 18px; border-radius: 7px; font-weight: 700; transition: .2s;
+    }
+    .btn:hover { background: var(--pink-light); border-color: var(--pink-light); transform: translateY(-1px); }
+    .btn.secondary { background: transparent; color: var(--pink-light); }
+    .btn.secondary:hover { background: rgba(240,75,155,.12); }
+    .btn.small { padding: 8px 12px; font-size: 12px; }
+    .class-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 13px; }
+    .class-card {
+      text-align: left; color: var(--white); background: var(--panel);
+      border: 1px solid var(--line); border-radius: 12px; padding: 18px 15px;
+      min-height: 205px; transition: .2s;
+    }
+    .class-card:hover, .class-card.selected { border-color: var(--pink); background: #241626; transform: translateY(-3px); }
+    .class-card .symbol { color: var(--pink-light); font-size: 22px; }
+    .class-card h3 { margin: 12px 0 8px; font-size: 17px; }
+    .class-card p { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0; }
+    .class-card .hint { display: block; margin-top: 10px; color: var(--pink-light); font-size: 11px; }
+    .hidden { display: none !important; }
+    .stepbar { display: flex; gap: 8px; margin: 22px 0; flex-wrap: wrap; }
+    .step { color: #897b89; border-bottom: 2px solid var(--line); padding: 9px 13px; font-size: 12px; }
+    .step.active { color: var(--pink-light); border-color: var(--pink); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 12px; color: var(--pink-light); font-weight: 600; letter-spacing: .3px; }
+    input, textarea, select {
+      width: 100%; color: var(--white); background: #0e0a10;
+      border: 1px solid var(--line); border-radius: 7px; padding: 11px 12px; outline: none;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--pink); box-shadow: 0 0 0 2px rgba(240,75,155,.1); }
+    input[type="number"] { max-width: 105px; }
+    input[type="file"] { padding: 9px; }
+    textarea { min-height: 130px; resize: vertical; line-height: 1.6; }
+    .subheading { color: var(--pink-light); font: 600 16px Cinzel, serif; margin: 26px 0 13px; }
+    .attribute-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .attribute-card { border: 1px solid var(--line); border-radius: 10px; padding: 15px; background: rgba(8,6,10,.35); }
+    .attribute-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .attribute-top strong { font: 600 15px Cinzel, serif; }
+    .attribute-top input { max-width: 75px; text-align: center; }
+    .substats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .substats label { color: var(--muted); font-size: 10px; }
+    .substats input { padding: 8px; margin-top: 5px; max-width: none; }
+    .skill-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; }
+    .skill { display: flex; justify-content: space-between; align-items: center; gap: 7px; padding: 9px; background: #100c12; border: 1px solid var(--line); border-radius: 7px; }
+    .skill label { color: var(--white); font-size: 11px; }
+    .skill input { width: 57px; padding: 7px; text-align: center; }
+    .vitals { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .vital { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: #100c12; }
+    .vital label { display: block; margin-bottom: 10px; }
+    .vital input { font: 600 22px Cinzel,serif; max-width: none; text-align: center; }
+    .photo-layout { display: grid; grid-template-columns: 210px 1fr; gap: 20px; align-items: start; }
+    .photo-preview {
+      width: 100%; aspect-ratio: 3/4; border: 1px dashed var(--pink);
+      border-radius: 10px; display: grid; place-items: center; overflow: hidden;
+      color: var(--muted); text-align: center; padding: 12px; background: #100c12;
+    }
+    .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .saved-list { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .saved-card { border: 1px solid var(--line); border-radius: 10px; padding: 15px; background: var(--panel); }
+    .saved-card h3 { margin: 0 0 5px; font-size: 16px; }
+    .saved-card p { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+    .saved-card .actions { margin-top: 0; }
+    .empty { color: var(--muted); font-size: 13px; padding: 15px 0; }
+
+    .dice-panel { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+    .die-button { border:1px solid var(--line); background:#100c12; color:var(--white); border-radius:9px; padding:14px 8px; }
+    .die-button strong { display:block; color:var(--pink-light); font:700 22px Cinzel,serif; margin-bottom:5px; }
+    .die-button:hover { border-color:var(--pink); background:#241626; }
+    .dice-result { margin-top:14px; border:1px solid var(--pink); border-radius:9px; padding:15px; background:rgba(240,75,155,.08); text-align:center; }
+    .dice-result strong { display:block; font:700 34px Cinzel,serif; color:var(--pink-light); }
+    .inventory-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .inventory-item { background:#100c12; border:1px solid var(--line); border-radius:9px; padding:13px; }
+    .inventory-item h4 { color:var(--pink-light); margin:0 0 6px; font:600 14px Cinzel,serif; }
+    .inventory-item p { color:var(--muted); font-size:11px; line-height:1.55; margin:0 0 10px; }
+    .inventory-item .item-control { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .inventory-item .item-control label { color:var(--white); font-size:11px; }
+    .inventory-item input[type=number] { width:70px; max-width:70px; padding:7px; }
+    .inventory-item input[type=checkbox] { accent-color:var(--pink); width:16px; height:16px; }
+    @media (max-width:560px) { .dice-panel { grid-template-columns:repeat(3,1fr); } .inventory-grid { grid-template-columns:1fr; } }
+
+    .footer { border-top: 1px solid var(--line); text-align: center; padding: 28px 15px; color: var(--muted); font-size: 11px; letter-spacing: 1px; }
+    .notice { color: var(--muted); font-size: 11px; line-height: 1.6; margin-top: 12px; }
+    @media (max-width: 850px) {
+      .class-grid { grid-template-columns: repeat(2,1fr); }
+      .class-card:last-child { grid-column: auto; }
+      .skill-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 560px) {
+      .nav { gap: 10px; } .nav a { font-size: 11px; }
+      .brand { font-size: 14px; }
+      .form-grid, .attribute-grid, .vitals, .saved-list { grid-template-columns: 1fr; }
+      .substats { grid-template-columns: repeat(3,1fr); }
+      .photo-layout { grid-template-columns: 1fr; }
+      .photo-preview { max-width: 220px; }
+      .class-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">FICHAS <span>RPG</span></div>
+    <nav class="nav">
+      <a href="#classes">Classes</a>
+      <a href="#criador">Criar ficha</a>
+      <a href="#salvas">Fichas salvas</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Um mundo entre o mistério e o sobrenatural</div>
+      <h1>FICHAS RPG</h1>
+      <div class="ornament">─── 𖤐 ───</div>
+      <p>Nem toda história termina quando a luz se apaga. Crie seu personagem, descubra seu destino e prepare-se para atravessar o desconhecido.</p>
+      <a href="#classes"><button class="btn">Criar personagem</button></a>
+    </div>
+  </section>
+
+  <main>
+    <section class="section container" id="classes">
+      <div class="section-heading">
+        <div class="eyebrow">Etapa 01 · Escolha seu caminho</div>
+        <h2>Selecione uma classe</h2>
+        <p>A classe define as especialidades iniciais do personagem. Depois da escolha, você poderá personalizar sua ficha.</p>
+      </div>
+      <div class="class-grid" id="classGrid">
+        <button class="class-card" data-class="Cavaleiro">
+          <span class="symbol">⚔</span><h3>Cavaleiro</h3>
+          <p>Especialista em combate e proteção. Forte em Luta, Atletismo, Fortitude e Intimidação.</p>
+          <span class="hint">Proteção · Ataques poderosos</span>
+        </button>
+        <button class="class-card" data-class="Arcanista">
+          <span class="symbol">✧</span><h3>Arcanista</h3>
+          <p>Especialista em magia e conhecimento sobrenatural. Forte em Ciências, Memória, Análise e Poder mágico.</p>
+          <span class="hint">Maldições · Encantamentos</span>
+        </button>
+        <button class="class-card" data-class="Nobre">
+          <span class="symbol">♛</span><h3>Nobre</h3>
+          <p>Especialista em relações políticas. Forte em Diplomacia, Charme, Intuição, Enganação e Intimidação.</p>
+          <span class="hint">Influência · Segredos</span>
+        </button>
+        <button class="class-card" data-class="Curandeiro">
+          <span class="symbol">✚</span><h3>Curandeiro</h3>
+          <p>Especialista em Medicina e suporte. Forte em Medicina, Análise, Ciências e Vontade.</p>
+          <span class="hint">Cuidado · Suporte</span>
+        </button>
+        <button class="class-card" data-class="Espião">
+          <span class="symbol">☾</span><h3>Espião</h3>
+          <p>Especialista em conseguir informações sem ser percebido. Forte em Furtividade, Enganação e Agilidade.</p>
+          <span class="hint">Infiltração · Passagens secretas</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section container hidden" id="criador">
+      <div class="section-heading">
+        <div class="eyebrow">Etapa 02 · Sua ficha</div>
+        <h2>Construa seu personagem</h2>
+        <p>Classe escolhida: <strong id="chosenClass" style="color:var(--pink-light)"></strong></p>
+      </div>
+      <div class="stepbar">
+        <span class="step active">01 · Identidade</span><span class="step active">02 · Atributos</span>
+        <span class="step active">03 · Perícias</span><span class="step active">04 · História</span>
+      </div>
+      <form id="characterForm" class="panel">
+        <input type="hidden" id="characterClass" name="classe">
+        <div class="subheading">Identidade do personagem</div>
+        <div class="form-grid">
+          <div class="field"><label for="name">Nome do personagem</label><input id="name" name="nome" placeholder="Como ele se chama?" required></div>
+          <div class="field"><label for="player">Nome do jogador</label><input id="player" name="jogador" placeholder="Seu nome"></div>
+          <div class="field"><label for="age">Idade</label><input id="age" name="idade" type="number" min="0" placeholder="Ex.: 20"></div>
+          <div class="field"><label for="origin">Origem / Ocupação</label><input id="origin" name="origem" placeholder="Ex.: estudante, mercenário..."></div>
+        </div>
+
+        <div class="subheading">Estado do personagem</div>
+        <div class="vitals">
+          <div class="vital"><label for="life">♥ Vida</label><input id="life" name="vida" type="number" min="0" value="10"></div>
+          <div class="vital"><label for="determination">✦ Determinação</label><input id="determination" name="determinacao" type="number" min="0" value="5"></div>
+          <div class="vital"><label for="sanity">☾ Sanidade</label><input id="sanity" name="sanidade" type="number" min="0" value="10"></div>
+        </div>
+
+
+        <div class="subheading">Rolagem de dados</div>
+        <p class="notice">Escolha um dado para fazer um teste. O resultado aparece abaixo.</p>
+        <div class="dice-panel" id="dicePanel">
+          <button class="die-button" type="button" data-die="20"><strong>D20</strong><span>20 lados</span></button>
+          <button class="die-button" type="button" data-die="12"><strong>D12</strong><span>12 lados</span></button>
+          <button class="die-button" type="button" data-die="8"><strong>D8</strong><span>8 lados</span></button>
+          <button class="die-button" type="button" data-die="6"><strong>D6</strong><span>6 lados</span></button>
+          <button class="die-button" type="button" data-die="4"><strong>D4</strong><span>4 lados</span></button>
+        </div>
+        <div class="dice-result" id="diceResult" aria-live="polite">Resultado do dado<strong>—</strong></div>
+
+        <div class="subheading">Inventário · Armas</div>
+        <div class="form-grid">
+          <div class="field"><label for="weapon">Arma equipada</label>
+            <select id="weapon" name="arma">
+              <option value="">Selecione uma arma</option><option>Foice</option><option>Lança</option><option>Arco e flecha</option><option>Faca</option><option>Adaga</option><option>Alabarda</option><option>Espada</option>
+            </select>
+          </div>
+          <div class="field"><label for="arrows">Munição · Flechas (máximo inicial: 12)</label><input id="arrows" name="flechas" type="number" min="0" max="12" value="12"></div>
+        </div>
+        <p class="notice">Selecione a arma que seu personagem está usando. Se escolher arco e flecha, controle a quantidade de flechas disponíveis.</p>
+
+        <div class="subheading">Inventário · Itens de cura</div>
+        <div id="healerOnly" class="hidden">
+          <p class="notice">Itens exclusivos da classe Curandeiro. Marque os itens que fazem parte do inventário e ajuste a quantidade.</p>
+          <div class="inventory-grid">
+            <div class="inventory-item"><h4>Antídoto</h4><p>Recupera <b>1d8</b> pontos de efeito de cura contra venenos, conforme as regras da campanha. Para fabricar: 2 folhas amargas + 1 frasco vazio.</p><div class="item-control"><label><input type="checkbox" name="cura_antidoto" id="cura_antidoto"> No inventário</label><input type="number" min="0" value="0" name="qtd_antidoto" aria-label="Quantidade de antídotos"></div></div>
+            <div class="inventory-item"><h4>Ataduras</h4><p>Recuperam <b>1d4</b> pontos de vida. Para fabricar: 1 faixa de tecido limpo + 1 rolo de linha.</p><div class="item-control"><label><input type="checkbox" name="cura_ataduras" id="cura_ataduras"> No inventário</label><input type="number" min="0" value="0" name="qtd_ataduras" aria-label="Quantidade de ataduras"></div></div>
+            <div class="inventory-item"><h4>Ervas medicinais</h4><p>Recuperam <b>1d6</b> pontos de vida. Para preparar: 2 porções de ervas medicinais + 1 recipiente limpo.</p><div class="item-control"><label><input type="checkbox" name="cura_ervas" id="cura_ervas"> No inventário</label><input type="number" min="0" value="0" name="qtd_ervas" aria-label="Quantidade de ervas medicinais"></div></div>
+            <div class="inventory-item"><h4>Pomada curativa</h4><p>Recupera <b>1d4 + 1d6</b> pontos de vida. Para fabricar: 2 ervas cicatrizantes + 1 pote de gordura vegetal + 1 frasco pequeno.</p><div class="item-control"><label><input type="checkbox" name="cura_pomada" id="cura_pomada"> No inventário</label><input type="number" min="0" value="0" name="qtd_pomada" aria-label="Quantidade de pomadas"></div></div>
+          </div>
+        </div>
+        <div id="notHealer" class="notice">Os itens de cura aparecem somente quando a classe Curandeiro é selecionada.</div>
+
+        <div class="subheading">Retrato</div>
+        <div class="photo-layout">
+          <div class="photo-preview" id="photoPreview">Sua imagem aparecerá aqui</div>
+          <div class="field">
+            <label for="photo">Foto do personagem</label>
+            <input id="photo" type="file" accept="image/*">
+            <p class="notice">Escolha uma imagem do seu dispositivo. Ela ficará vinculada à ficha salva neste navegador.</p>
+          </div>
+        </div>
+
+        <div class="subheading">Atributos</div>
+        <p class="notice">Preencha os valores de cada atributo e de suas características. Os campos começam em zero e podem ser alterados livremente.</p>
+        <div class="attribute-grid" id="attributeGrid"></div>
+
+        <div class="subheading">Perícias</div>
+        <div class="skill-grid" id="skillGrid"></div>
+
+        <div class="subheading">História do personagem</div>
+        <div class="field">
+          <label for="history">Passado, personalidade, objetivos e segredos</label>
+          <textarea id="history" name="historia" placeholder="Conte a história do seu personagem..."></textarea>
+        </div>
+        <div class="field" style="margin-top:15px">
+          <label for="notes">Anotações adicionais</label>
+          <textarea id="notes" name="anotacoes" placeholder="Equipamentos, relações, pistas, observações..."></textarea>
+        </div>
+        <div class="actions">
+          <button class="btn" type="submit">Salvar ficha</button>
+          <button class="btn secondary" type="button" id="newCharacter">Nova ficha</button>
+        </div>
+        <p class="notice">As fichas ficam salvas no armazenamento local deste navegador. Para não perder seus personagens, exporte uma cópia em JSON usando a opção disponível na lista de fichas.</p>
+      </form>
+    </section>
+
+    <section class="section container" id="salvas">
+      <div class="section-heading">
+        <div class="eyebrow">Seu arquivo de personagens</div>
+        <h2>Fichas salvas</h2>
+        <p>Abra uma ficha para continuar editando ou exporte uma cópia para guardar.</p>
+      </div>
+      <div id="savedList" class="saved-list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">FICHAS RPG · O DESTINO ESTÁ EM SUAS MÃOS</footer>
+
+  <script>
+    const attributeData = {
+      "Força": ["Golpe", "Carregamento", "Reesforço"],
+      "Agilidade": ["Mental", "Física", "Golpe"],
+      "Intelecto": ["Busca", "Pensamento", "Decifração"],
+      "Presença": ["Social", "Própria", "Estabilidade"],
+      "Vigor": ["Física", "Veneno", "Reesforço"],
+      "Poder mágico": ["Golpe", "Mira", "Suporte"],
+      "Resistência mágica": ["Mental", "Física", "Fuga"]
+    };
+    const skills = [
+      "Acrobacia","Adestramento","Análise","Artes","Atletismo","Charme","Ciências","Corrida",
+      "Crime","Diplomacia","Enganação","Escala","Fôlego","Fortitude","Furtividade","Iniciativa",
+      "Intimidação","Intuição","Investigação","Luta","Medicina","Memória","Natação","Percepção",
+      "Pilotagem","Pontaria","Reflexos","Sobrevivência","Sorte","Tática","Tecnologia","Vontade"
+    ];
+    const specialties = {
+      "Cavaleiro": ["Luta","Atletismo","Fortitude","Intimidação"],
+      "Arcanista": ["Ciências","Memória","Análise"],
+      "Nobre": ["Diplomacia","Charme","Intuição","Enganação","Intimidação"],
+      "Curandeiro": ["Medicina","Análise","Ciências","Vontade"],
+      "Espião": ["Furtividade","Enganação","Acrobacia","Crime"]
+    };
+    let selectedClass = "";
+    let currentPhoto = "";
+    let editingId = null;
+
+    const attributeGrid = document.getElementById("attributeGrid");
+    Object.entries(attributeData).forEach(([name, subs], index) => {
+      const card = document.createElement("div");
+      card.className = "attribute-card";
+      card.innerHTML = `
+        <div class="attribute-top">
+          <strong>${name}</strong>
+          <input type="number" min="0" value="0" name="atributo_${index}" aria-label="${name}">
+        </div>
+        <div class="substats">
+          ${subs.map((sub, i) => `<div><label>${sub}</label><input type="number" min="0" value="0" name="sub_${index}_${i}" aria-label="${name} ${sub}"></div>`).join("")}
+        </div>`;
+      attributeGrid.appendChild(card);
+    });
+
+    const skillGrid = document.getElementById("skillGrid");
+    skills.forEach(skill => {
+      const item = document.createElement("div");
+      item.className = "skill";
+      item.innerHTML = `<label for="skill_${skill}">${skill}</label><input id="skill_${skill}" name="pericia_${skill}" type="number" min="0" value="0" aria-label="${skill}">`;
+      skillGrid.appendChild(item);
+    });
+
+    document.querySelectorAll(".class-card").forEach(card => {
+      card.addEventListener("click", () => {
+        selectedClass = card.dataset.class;
+        document.querySelectorAll(".class-card").forEach(c => c.classList.toggle("selected", c === card));
+        document.getElementById("chosenClass").textContent = selectedClass;
+        document.getElementById("characterClass").value = selectedClass;
+        updateHealerInventory();
+        document.getElementById("criador").classList.remove("hidden");
+        document.getElementById("criador").scrollIntoView({ behavior: "smooth" });
+      });
+    });
+
+    document.getElementById("photo").addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        alert("Selecione um arquivo de imagem.");
+        event.target.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        currentPhoto = reader.result;
+        document.getElementById("photoPreview").innerHTML = `<img src="${currentPhoto}" alt="Retrato do personagem">`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function updateHealerInventory() {
+      const isHealer = selectedClass === "Curandeiro";
+      document.getElementById("healerOnly").classList.toggle("hidden", !isHealer);
+      document.getElementById("notHealer").classList.toggle("hidden", isHealer);
+    }
+
+    document.getElementById("dicePanel").addEventListener("click", event => {
+      const button = event.target.closest("button[data-die]");
+      if (!button) return;
+      const sides = Number(button.dataset.die);
+      const result = Math.floor(Math.random() * sides) + 1;
+      document.getElementById("diceResult").innerHTML = `Resultado do D${sides}<strong>${result}</strong>`;
+    });
+
+    function collectForm() {
+      const form = document.getElementById("characterForm");
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.classe = selectedClass || data.classe;
+      data.foto = currentPhoto;
+      data.atributos = {};
+      Object.entries(attributeData).forEach(([name, subs], index) => {
+        data.atributos[name] = {
+          valor: form.elements[`atributo_${index}`].value,
+          detalhes: Object.fromEntries(subs.map((sub, i) => [sub, form.elements[`sub_${index}_${i}`].value]))
+        };
+      });
+      data.pericias = {};
+      skills.forEach(skill => data.pericias[skill] = form.elements[`pericia_${skill}`].value);
+      data.inventario = {
+        arma: document.getElementById("weapon").value,
+        flechas: document.getElementById("arrows").value,
+        curas: selectedClass === "Curandeiro" ? {
+          antidoto: { possui: document.getElementById("cura_antidoto").checked, quantidade: form.elements.qtd_antidoto.value },
+          ataduras: { possui: document.getElementById("cura_ataduras").checked, quantidade: form.elements.qtd_ataduras.value },
+          ervas: { possui: document.getElementById("cura_ervas").checked, quantidade: form.elements.qtd_ervas.value },
+          pomada: { possui: document.getElementById("cura_pomada").checked, quantidade: form.elements.qtd_pomada.value }
+        } : {}
+      };
+      return data;
+    }
+
+    function fillForm(data) {
+      const form = document.getElementById("characterForm");
+      const simple = ["nome","jogador","idade","origem","vida","determinacao","sanidade","historia","anotacoes"];
+      const ids = {nome:"name", jogador:"player", idade:"age", origem:"origin", vida:"life", determinacao:"determination", sanidade:"sanity", historia:"history", anotacoes:"notes"};
+      simple.forEach(key => document.getElementById(ids[key]).value = data[key] ?? "");
+      selectedClass = data.classe || "";
+      document.getElementById("chosenClass").textContent = selectedClass;
+      document.getElementById("characterClass").value = selectedClass;
+      updateHealerInventory();
+      document.getElementById("weapon").value = data.inventario?.arma || "";
+      document.getElementById("arrows").value = data.inventario?.flechas ?? 12;
+      const cures = data.inventario?.curas || {};
+      [["antidoto","cura_antidoto","qtd_antidoto"],["ataduras","cura_ataduras","qtd_ataduras"],["ervas","cura_ervas","qtd_ervas"],["pomada","cura_pomada","qtd_pomada"]].forEach(([key,checkId,qtyName]) => {
+        document.getElementById(checkId).checked = !!cures[key]?.possui;
+        form.elements[qtyName].value = cures[key]?.quantidade ?? 0;
+      });
+      document.querySelectorAll(".class-card").forEach(c => c.classList.toggle("selected", c.dataset.class === selectedClass));
+      Object.entries(attributeData).forEach(([name, subs], index) => {
+        const attr = data.atributos?.[name] || {};
+        form.elements[`atributo_${index}`].value = attr.valor ?? 0;
+        subs.forEach((sub, i) => form.elements[`sub_${index}_${i}`].value = attr.detalhes?.[sub] ?? 0);
+      });
+      skills.forEach(skill => form.elements[`pericia_${skill}`].value = data.pericias?.[skill] ?? 0);
+      currentPhoto = data.foto || "";
+      document.getElementById("photoPreview").innerHTML = currentPhoto ? `<img src="${currentPhoto}" alt="Retrato do personagem">` : "Sua imagem aparecerá aqui";
+      document.getElementById("photo").value = "";
+      document.getElementById("criador").classList.remove("hidden");
+      document.getElementById("criador").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function getSaved() {
+      try { return JSON.parse(localStorage.getItem("rosaPressagiosFichas") || "[]"); }
+      catch { return []; }
+    }
+    function saveAll(items) {
+      try {
+        localStorage.setItem("rosaPressagiosFichas", JSON.stringify(items));
+        return true;
+      } catch (error) {
+        alert("Não foi possível salvar. A imagem pode ser muito grande; tente uma imagem menor.");
+        return false;
+      }
+    }
+
+    document.getElementById("characterForm").addEventListener("submit", event => {
+      event.preventDefault();
+      if (!selectedClass) {
+        alert("Escolha uma classe antes de salvar a ficha.");
+        document.getElementById("classes").scrollIntoView({behavior:"smooth"});
+        return;
+      }
+      const data = collectForm();
+      const all = getSaved();
+      if (editingId) {
+        const index = all.findIndex(item => item.id === editingId);
+        if (index >= 0) all[index] = {...data, id: editingId};
+      } else {
+        data.id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+        all.push(data);
+        editingId = data.id;
+      }
+      if (saveAll(all)) {
+        renderSaved();
+        alert("Ficha salva com sucesso!");
+      }
+    });
+
+    function renderSaved() {
+      const list = document.getElementById("savedList");
+      const all = getSaved();
+      if (!all.length) {
+        list.innerHTML = '<p class="empty">Você ainda não salvou nenhuma ficha.</p>';
+        return;
+      }
+      list.innerHTML = all.map(item => `
+        <article class="saved-card">
+          <h3>${escapeHTML(item.nome || "Personagem sem nome")}</h3>
+          <p>${escapeHTML(item.classe || "Sem classe")} · ${escapeHTML(item.jogador || "Jogador não informado")}</p>
+          <div class="actions">
+            <button class="btn small" data-action="open" data-id="${item.id}">Abrir</button>
+            <button class="btn secondary small" data-action="export" data-id="${item.id}">Exportar</button>
+            <button class="btn secondary small" data-action="delete" data-id="${item.id}">Excluir</button>
+          </div>
+        </article>`).join("");
+    }
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
+    }
+
+    document.getElementById("savedList").addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const {action, id} = button.dataset;
+      const all = getSaved();
+      const item = all.find(entry => entry.id === id);
+      if (!item) return;
+      if (action === "open") {
+        editingId = id;
+        fillForm(item);
+      } else if (action === "delete") {
+        if (confirm(`Excluir a ficha de ${item.nome || "personagem sem nome"}?`)) {
+          saveAll(all.filter(entry => entry.id !== id));
+          if (editingId === id) resetForm();
+          renderSaved();
+        }
+      } else if (action === "export") {
+        const blob = new Blob([JSON.stringify(item, null, 2)], {type:"application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${(item.nome || "personagem").replace(/[^a-z0-9-_]/gi, "_")}-ficha.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    });
+
+    function resetForm() {
+      document.getElementById("characterForm").reset();
+      currentPhoto = "";
+      editingId = null;
+      document.getElementById("photoPreview").textContent = "Sua imagem aparecerá aqui";
+      document.getElementById("photo").value = "";
+      document.getElementById("criador").classList.add("hidden");
+      document.querySelectorAll(".class-card").forEach(c => c.classList.remove("selected"));
+      selectedClass = "";
+      updateHealerInventory();
+      document.getElementById("diceResult").innerHTML = "Resultado do dado<strong>—</strong>";
+    }
+    document.getElementById("newCharacter").addEventListener("click", () => {
+      resetForm();
+      document.getElementById("classes").scrollIntoView({behavior:"smooth"});
+    });
+
+    renderSaved();
+  </script>
+</body>
+</html>
